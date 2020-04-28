@@ -9,8 +9,40 @@
 
 <script>
 import "../../node_modules/echarts/map/js/china.js";
+//二级地图引入
+import "../../node_modules/echarts/map/js/province/anhui.js";
+import "../../node_modules/echarts/map/js/province/aomen.js";
 import "../../node_modules/echarts/map/js/province/beijing.js";
+import "../../node_modules/echarts/map/js/province/chongqing.js";
+import "../../node_modules/echarts/map/js/province/fujian.js";
+import "../../node_modules/echarts/map/js/province/gansu.js";
+import "../../node_modules/echarts/map/js/province/guangdong.js";
+import "../../node_modules/echarts/map/js/province/guangxi.js";
+import "../../node_modules/echarts/map/js/province/hainan.js";
+import "../../node_modules/echarts/map/js/province/hebei.js";
+import "../../node_modules/echarts/map/js/province/heilongjiang.js";
+import "../../node_modules/echarts/map/js/province/henan.js";
+import "../../node_modules/echarts/map/js/province/hubei.js";
+import "../../node_modules/echarts/map/js/province/hunan.js";
+import "../../node_modules/echarts/map/js/province/jiangsu.js";
+import "../../node_modules/echarts/map/js/province/jiangxi.js";
+import "../../node_modules/echarts/map/js/province/jilin.js";
+import "../../node_modules/echarts/map/js/province/liaoning.js";
+import "../../node_modules/echarts/map/js/province/neimenggu.js";
+import "../../node_modules/echarts/map/js/province/ningxia.js";
+import "../../node_modules/echarts/map/js/province/qinghai.js";
+import "../../node_modules/echarts/map/js/province/shandong.js";
+import "../../node_modules/echarts/map/js/province/shanghai.js";
+import "../../node_modules/echarts/map/js/province/shanxi.js";
 import "../../node_modules/echarts/map/js/province/sichuan.js";
+import "../../node_modules/echarts/map/js/province/taiwan.js";
+import "../../node_modules/echarts/map/js/province/tianjin.js";
+import "../../node_modules/echarts/map/js/province/xianggang.js";
+import "../../node_modules/echarts/map/js/province/xinjiang.js";
+import "../../node_modules/echarts/map/js/province/xizang.js";
+import "../../node_modules/echarts/map/js/province/yunnan.js";
+import "../../node_modules/echarts/map/js/province/zhejiang.js";
+
 export default {
   props: ["userJson"],
   data() {
@@ -56,22 +88,26 @@ export default {
           show: true,
           trigger: "item",
           formatter(params) {
-            return (
-              "地区：" +
-              params.name +
-              "<br/>确诊：" +
-              params.data.value +
-              "人" +
-              "<br/>死亡：" +
-              params.data.deathNum +
-              "人" +
-              "<br/>医治：" +
-              params.data.cureNum +
-              "人" +
-              "<br/>现存：" +
-              params.data.econNum +
-              "人"
-            );
+            if (params.data) {
+              return (
+                "地区：" +
+                params.name +
+                "<br/>确诊：" +
+                params.data.value +
+                "人" +
+                "<br/>死亡：" +
+                params.data.deathNum +
+                "人" +
+                "<br/>医治：" +
+                params.data.cureNum +
+                "人" +
+                "<br/>现存：" +
+                params.data.econNum +
+                "人"
+              );
+            } else {
+              return "地区：" + params.name + "<br/>暂无疫情信息";
+            }
           }
         },
         toolbox: {
@@ -129,36 +165,27 @@ export default {
       myCharts.setOption(options);
 
       myCharts.on("click", function(chinaParam) {
-        if (chinaParam.name == "四川") {
-          var option = myCharts.getOption();
+        if (chinaParam.name == "南海诸岛") {
+          alert(chinaParam.name + "区域尚未开放");
+        } else {
+          let option = myCharts.getOption();
           option.series[0].map = chinaParam.name;
           let arr = that.map.map(n => {
             return n.name;
           });
-          option.series[0].data = that.map[arr.indexOf(chinaParam.data.name)];
-          console.log(option.series[0].data);
-          option.tooltip.formatter = params => {
-            return (
-              "地区：" +
-              params.name +
-              "<br/>确诊：" +
-              params.value +
-              "人" +
-              "<br/>死亡：" +
-              params.deathNum +
-              "人" +
-              "<br/>医治：" +
-              params.cureNum +
-              "人" +
-              "<br/>现存：" +
-              params.econNum +
-              "人"
-            );
-          };
+          let data = [];
+          that.map[arr.indexOf(chinaParam.data.name)].city.forEach(item => {
+            if (item.mapName) {
+              item.name = item.mapName;
+            }
+            return data.push(Object.assign({}, item, { value: item.conNum }));
+          });
+
+          option.series[0].data = data;
+          option.visualMap[0].max = 50;
+          //重绘地图
           myCharts.clear();
-          myCharts.setOption(option, true);
-        } else {
-          alert(chinaParam.name + "区域尚未开通！！");
+          myCharts.setOption(option);
         }
       });
     }
