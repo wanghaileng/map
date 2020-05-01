@@ -77,7 +77,7 @@ export default {
       });
       let options = {
         title: {
-          text: "中国地图",
+          text: "中国地图1",
           subtext: "map of China"
         },
         grid: {
